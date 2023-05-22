@@ -16,6 +16,7 @@ class Angreifer:
         #self.position_Rect((position_x, position_y), (width, height))
         self.start = True
         self.direction = direction
+        self.spawn_distance = 100
    
     def check_collision(self, chara):
         if (chara.position.x + chara.width) > self.position.x:

@@ -56,9 +56,9 @@ while running:
         screen.blit(chara.image, chara.position)
 
         #score
-        my_font = pygame.font.SysFont('Comic Sans MS', 50)
-        text_surface = my_font.render(str(score), False, (255, 255, 255))
-        screen.blit(text_surface, (width/2 - 25 ,height/2 - 25))
+        my_font = pygame.font.SysFont('Comic Sans MS', 20)
+        text_surface = my_font.render(str(round(score / _FPS, 3))  + "s", False, (255, 255, 255))
+        screen.blit(text_surface, (buffer, buffer))
 
         keys = pygame.key.get_pressed()
         keysinput.wasdinput(keys, buffer, chara, screen, dt) # movement / freeze program
@@ -79,24 +79,28 @@ while running:
                     _.direction = 0
                     _.not_direction = 1
                     _.screen_size = screen.get_width()
+
                 if _.start:
-                    time_1 = float(time())
-                    _.position[_.not_direction] = random.uniform(0, screen.get_width())
+                    _.time_1 = float(time())
+                    _.position[_.not_direction] = random.uniform(chara.position[_.not_direction] - _.spawn_distance, chara.position[_.not_direction] + _.spawn_distance)
                     _.position[_.direction] = 0
                     _.start = False
                     _.start0 = True
-                    _.wait_time = random.uniform(0.1, 2)
-                if has_time_passed(time_1, _.wait_time, 30):
+                    _.wait_time = random.uniform(0.1, 0.5)
+
+                if has_time_passed(_.time_1, _.wait_time, 30):
                     if _.start0:
                         _.time = time()
                         _.start0 = False
-                    _.position[_.direction] = ( time() - _.time ) * 200
+                    _.position[_.direction] = ( time() - _.time ) * 400
                     _.display_angreifer(screen)
                     if _.check_collision(chara):
                         dead = True
                 if _.position[_.direction] > _.screen_size:
                     _.start = True
-                    _.position = (0, 0)
+                    #_.position = pygame.Vector2(0, 0)
+
+    score += 1
 
     # flip() the display to put your work on screen
     pygame.display.flip()
