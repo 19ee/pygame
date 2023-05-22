@@ -14,13 +14,16 @@ width = screen.get_width()
 height = screen.get_height()
 
 player_icon = "pygame\\UT\\player_icon.png" # "N:\\My Pictures\\Shalom.jpg"
-chara = classes.Character(pygame.image.load(player_icon), width=50, height=50, position_x=screen.get_width() / 2, position_y=screen.get_height() / 2)
+chara = classes.Character(player_icon, width=50, height=50, position_x=screen.get_width() / 2, position_y=screen.get_height() / 2)
 
 buffer = 22
 score = 0
 
 dead = False
 first_movement = False
+dash_cooldown = False
+dash_time = 0
+last_dash = 0
 
 angreifers = []
 angreifers.append(classes.Angreifer("red", position_x = -50, position_y = -50, width=30, height=30, direction="vertical"))
@@ -28,12 +31,18 @@ angreifers.append(classes.Angreifer("green", position_x = -50, position_y = -50,
 angreifers.append(classes.Angreifer("red", position_x = -50, position_y = -50, width=30, height=30, direction="horizontal"))
 
 
-def has_time_passed(time_1, seconds_l, seconds_u):
+def has_time_passed(time_1, seconds_l=None, seconds_u=None):
     time_passed = time() - time_1
-    if time_passed >= seconds_l and time_passed < seconds_u:
-        return True
-    else:
-        return False
+    if seconds_l and seconds_u:
+        if time_passed >= seconds_l and time_passed < seconds_u:
+            return True
+    elif seconds_l:
+        if time_passed >= seconds_l:
+            return True
+    elif seconds_u:
+        if time_passed < seconds_u:
+            return True
+    return False
 
 while running:
     # poll for events
@@ -63,6 +72,22 @@ while running:
         keys = pygame.key.get_pressed()
         keysinput.wasdinput(keys, buffer, chara, screen, dt) # movement / freeze program
 
+        if dash_cooldown == False:
+            if keys[pygame.K_LSHIFT]:
+                dash_time = time()
+            if has_time_passed(dash_time):
+                dash_cooldown = True
+        if has_time_passed(dash_time, 0, 1):
+            chara.speed = 500
+            chara.change_image("pygame\\UT\\player_icon_dash.png")
+        else:
+            chara.speed = 300
+            chara.change_image("pygame\\UT\\player_icon.png")
+            last_dash = time()
+        
+        if has_time_passed(last_dash, 3):
+            dash_cooldown = False
+
         if first_movement == False:
             if keys[pygame.K_w] or keys[pygame.K_s] or keys[pygame.K_a] or keys[pygame.K_d]:
                 first_movement = True
@@ -88,7 +113,7 @@ while running:
                     _.start0 = True
                     _.wait_time = random.uniform(0.1, 0.5)
 
-                if has_time_passed(_.time_1, _.wait_time, 30):
+                if has_time_passed(_.time_1, _.wait_time):
                     if _.start0:
                         _.time = time()
                         _.start0 = False
@@ -100,7 +125,8 @@ while running:
                     _.start = True
                     #_.position = pygame.Vector2(0, 0)
 
-    score += 1
+        if first_movement == True:
+            score += 1
 
     # flip() the display to put your work on screen
     pygame.display.flip()
