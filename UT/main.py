@@ -13,7 +13,8 @@ _FPS = 120
 width = screen.get_width()
 height = screen.get_height()
 
-player_icon = "pygame\\UT\\player_icon.png" # "N:\\My Pictures\\Shalom.jpg"
+player_icon = "player_icon.png" # "N:\\My Pictures\\Shalom.jpg"
+dash_icon = "player_icon_dash.png"
 chara = classes.Character(player_icon, width=50, height=50, position_x=screen.get_width() / 2, position_y=screen.get_height() / 2)
 
 buffer = 22
@@ -72,21 +73,20 @@ while running:
         keys = pygame.key.get_pressed()
         keysinput.wasdinput(keys, buffer, chara, screen, dt) # movement / freeze program
 
-        if dash_cooldown == False:
-            if keys[pygame.K_LSHIFT]:
+        # DASH ----------------------->
+
+        if keys[pygame.K_RSHIFT]:
+            if has_time_passed(dash_time, 4):
                 dash_time = time()
-            if has_time_passed(dash_time):
-                dash_cooldown = True
         if has_time_passed(dash_time, 0, 1):
             chara.speed = 500
-            chara.change_image("pygame\\UT\\player_icon_dash.png")
+            chara.change_image(dash_icon)
         else:
             chara.speed = 300
-            chara.change_image("pygame\\UT\\player_icon.png")
+            chara.change_image(player_icon)
             last_dash = time()
-        
-        if has_time_passed(last_dash, 3):
-            dash_cooldown = False
+
+        # ---------------------------->
 
         if first_movement == False:
             if keys[pygame.K_w] or keys[pygame.K_s] or keys[pygame.K_a] or keys[pygame.K_d]:
